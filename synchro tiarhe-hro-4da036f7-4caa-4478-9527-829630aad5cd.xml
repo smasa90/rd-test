@@ -20,10 +20,31 @@
     <nodesSelectedByDefault>true</nodesSelectedByDefault>
     <notification>
       <onfailure>
-        <webhook urls='https://hooks.slack.com/services/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' />
+        <plugin type='SlackNotification'>
+          <configuration>
+            <entry key='slack_channel' value='' />
+            <entry key='webhook_base_url' value='https://hooks.slack.com/services' />
+            <entry key='webhook_token' value='T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS' />
+          </configuration>
+        </plugin>
       </onfailure>
+      <onstart>
+        <plugin type='SlackNotification'>
+          <configuration>
+            <entry key='slack_channel' value='' />
+            <entry key='webhook_base_url' value='https://hooks.slack.com/services' />
+            <entry key='webhook_token' value='T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS' />
+          </configuration>
+        </plugin>
+      </onstart>
       <onsuccess>
-        <webhook urls='https://hooks.slack.com/services/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' />
+        <plugin type='SlackNotification'>
+          <configuration>
+            <entry key='slack_channel' value='' />
+            <entry key='webhook_base_url' value='https://hooks.slack.com/services' />
+            <entry key='webhook_token' value='T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS' />
+          </configuration>
+        </plugin>
       </onsuccess>
     </notification>
     <notifyAvgDurationThreshold />
