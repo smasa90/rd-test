@@ -1,0 +1,52 @@
+<joblist>
+  <job>
+    <defaultTab>summary</defaultTab>
+    <description></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>0e1fe015-9cfb-4cac-8a8f-bbb149f6a89e</id>
+    <loglevel>INFO</loglevel>
+    <name>synchro-tiarhe-hro-ng</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>svi-springboot0.site-mairie.noumea.nc</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <script><![CDATA[#!/bin/sh
+
+SVC_NAME=synchro-tiarhe-hro
+export SPRING_BATCH_JOB_NAMES=mockTiarheFtpJob
+
+# Start Service and get ActiveEnterDate
+sudo systemctl start $SVC_NAME
+ActiveEnterDate=`systemctl show -p ActiveEnterTimestamp $SVC_NAME | awk '{print $2 " " $3}'`
+
+# Print logs as a child process
+journalctl -qfu $SVC_NAME --since "$ActiveEnterDate" &
+CHILD_P=$!
+
+# When Job finish kill child porocess
+while systemctl is-active $SVC_NAME -q; do
+  sleep 1s
+done
+kill $CHILD_P
+
+# Get Exit Status
+ExecMainStatus=`systemctl show synchro-tiarhe-hro.service -p ExecMainStatus | cut -d'=' -f 2`
+exit $ExecMainStatus]]></script>
+        <scriptargs />
+        <scriptinterpreter>sudo -u synchro-tiarhe-hro -i </scriptinterpreter>
+      </command>
+    </sequence>
+    <uuid>0e1fe015-9cfb-4cac-8a8f-bbb149f6a89e</uuid>
+  </job>
+</joblist>

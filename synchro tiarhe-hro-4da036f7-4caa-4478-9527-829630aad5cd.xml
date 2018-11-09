@@ -1,0 +1,53 @@
+<joblist>
+  <job>
+    <defaultTab>summary</defaultTab>
+    <description></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>4da036f7-4caa-4478-9527-829630aad5cd</id>
+    <loglevel>INFO</loglevel>
+    <name>synchro tiarhe-hro</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>svi-springboot0.site-mairie.noumea.nc</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <notification>
+      <onfailure>
+        <webhook urls='https://hooks.slack.com/services/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' />
+      </onfailure>
+      <onsuccess>
+        <webhook urls='https://hooks.slack.com/services/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' />
+      </onsuccess>
+    </notification>
+    <notifyAvgDurationThreshold />
+    <schedule>
+      <month month='*' />
+      <time hour='07' minute='30' seconds='0' />
+      <weekday day='FRI,MON,THU,TUE,WED' />
+      <year year='*' />
+    </schedule>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <script><![CDATA[#!/bin/sh
+
+cd synchro-tiarhe-hro
+chmod +x mvnw
+./mvnw validate spring-boot:run -DskipTests -Dspring-boot.run.arguments=--spring.profiles.active='integration' -Dhttp.proxyHost=proxyweb.site-mairie.noumea.nc -Dhttp.proxyPort=3128 -Dhttps.proxyHost=proxyweb.site-mairie.noumea.nc -Dhttps.proxyPort=3128 -Dhttp.proxyUser=browser-bot -Dhttp.proxyPassword=B1X1wkB3 -Dhttps.proxyUser=browser-bot -Dhttps.proxyPassword=B1X1wkB3
+echo $?
+]]></script>
+        <scriptargs />
+        <scriptinterpreter>sudo -u synchro-tiarhe-hro -i</scriptinterpreter>
+      </command>
+    </sequence>
+    <timeZone>Pacific/Noumea</timeZone>
+    <uuid>4da036f7-4caa-4478-9527-829630aad5cd</uuid>
+  </job>
+</joblist>
