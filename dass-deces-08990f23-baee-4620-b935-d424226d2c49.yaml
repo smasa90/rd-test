@@ -1,0 +1,24 @@
+- defaultTab: summary
+  description: ''
+  executionEnabled: true
+  id: 08990f23-baee-4620-b935-d424226d2c49
+  loglevel: INFO
+  name: dass-deces
+  nodeFilterEditable: false
+  nodefilters:
+    dispatch:
+      excludePrecedence: true
+      keepgoing: false
+      rankOrder: ascending
+      successOnEmptyNodeFilter: false
+      threadcount: '1'
+    filter: svi-springboot0.site-mairie.noumea.nc
+  nodesSelectedByDefault: true
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - exec: ' sudo -u demo -i && pwd && cd dass-deces && pwd && ./dass-deces.jar --spring.config.location=file:./application.properties'
+    keepgoing: false
+    strategy: node-first
+  uuid: 08990f23-baee-4620-b935-d424226d2c49
+

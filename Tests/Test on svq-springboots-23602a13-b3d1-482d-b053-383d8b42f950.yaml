@@ -1,0 +1,25 @@
+- defaultTab: summary
+  description: ''
+  executionEnabled: true
+  group: Tests
+  id: 23602a13-b3d1-482d-b053-383d8b42f950
+  loglevel: DEBUG
+  name: Test on svq-springboots
+  nodeFilterEditable: false
+  nodefilters:
+    dispatch:
+      excludePrecedence: true
+      keepgoing: false
+      rankOrder: ascending
+      successOnEmptyNodeFilter: false
+      threadcount: '1'
+    filter: svq-springboot.*
+  nodesSelectedByDefault: true
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - exec: hostname
+    keepgoing: false
+    strategy: node-first
+  uuid: 23602a13-b3d1-482d-b053-383d8b42f950
+
