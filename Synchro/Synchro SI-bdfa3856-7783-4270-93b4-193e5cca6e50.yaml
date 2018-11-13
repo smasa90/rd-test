@@ -1,0 +1,110 @@
+- defaultTab: summary
+  description: Add a description here
+  executionEnabled: true
+  group: Synchro
+  id: bdfa3856-7783-4270-93b4-193e5cca6e50
+  loglevel: INFO
+  name: Synchro SI
+  nodeFilterEditable: false
+  nodefilters:
+    dispatch:
+      excludePrecedence: true
+      keepgoing: false
+      rankOrder: ascending
+      successOnEmptyNodeFilter: false
+      threadcount: '1'
+    filter: svq-springbatch0.site-mairie.noumea.nc
+  nodesSelectedByDefault: true
+  notification:
+    onfailure:
+      plugin:
+        configuration:
+          slack_channel: ''
+          webhook_base_url: https://hooks.slack.com/services
+          webhook_token: T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS
+        type: SlackNotification
+    onstart:
+      plugin:
+        configuration:
+          slack_channel: ''
+          webhook_base_url: https://hooks.slack.com/services
+          webhook_token: T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS
+        type: SlackNotification
+    onsuccess:
+      plugin:
+        configuration:
+          slack_channel: ''
+          webhook_base_url: https://hooks.slack.com/services
+          webhook_token: T04VA0W4Q/BDQ582J4E/KRGQGDKIF9gZstdA5yIa7MpS
+        type: SlackNotification
+  notifyAvgDurationThreshold: null
+  schedule:
+    month: '*'
+    time:
+      hour: '07'
+      minute: '40'
+      seconds: '0'
+    weekday:
+      day: FRI,MON,THU,TUE,WED
+    year: '*'
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - interpreterArgsQuoted: false
+      script: |-
+        #!/bin/sh
+        # @author: smasa90
+
+        # Available jobs are :
+        #   synchroAdJob - synchronize VDN AD
+        #   writeAdEmployeeJob - update VDN AD
+        #   synchroOmnivistaJob - synchronize Employee Omnivista data
+        #   writeOmnivistaEmployeeJob - write Employee Omnivista (replace all)
+        #   updateEmployeeOmnivistaJob - update Employee Omnivista (not used)
+        #   synchroGuestOmnivistaJob - synchronize Guest Omnivista data
+        #   writeGuestOmnivistaJob - write Guest Omnivista
+        #   synchroLocalityOmnivistaJob - synchronize Locality Omnivista data
+        #   writeLocalityOmnivistaJob - write Locality Omnivista
+        #   metaAnnuaireJob - consolidate data
+        #   synchroTiarheJob - synchronize Tiarhe data
+        #   consolidateTiarheDataJob - consolidate Tiarhe data
+        #   createFileTiarheJob - create file for Tiarhe
+        #   synchroniserNeo4jJob - Neo4j job (POC ?)
+        #
+        #   mockTiarheJob - for dev use
+        #   reverseAdJob - in case of Tiarhe NO GO
+        #
+        SPRING_BATCH_JOB_NAME=synchroTiarheJob,consolidateTiarheDataJob,writeOmnivistaEmployeeJob,synchroOmnivistaJob,synchroAdJob,writeAdEmployeeJob,synchroGuestOmnivistaJob,writeGuestOmnivistaJob,synchroLocalityOmnivistaJob,writeLocalityOmnivistaJob,metaAnnuaireJob,createFileTiarheJob
+
+        SVC_NAME=synchrosi
+
+        # Set Job names for this run
+        if [ ! -f ~/config/application.properties ]; then
+            mkdir ~/config; touch ~/config/application.properties;
+        fi
+        if [ $SPRING_BATCH_JOB_NAME ]; then
+            echo "spring.batch.job.names=$SPRING_BATCH_JOB_NAME" | tee ~/config/application.properties
+        fi
+
+        # Start Service and get ActiveEnterDate
+        sudo systemctl start $SVC_NAME
+        ActiveEnterDate=`systemctl show -p ActiveEnterTimestamp $SVC_NAME | awk '{print $2 " " $3}'`
+
+        # Print logs as a child process
+        journalctl -qfu $SVC_NAME -S "$ActiveEnterDate" &
+        CHILD_P=$!
+
+        # When Job finish kill child porocess and empty runtime application.properties
+        while systemctl is-active $SVC_NAME -q; do sleep 1s; done
+        kill $CHILD_P
+        > ~/config/application.properties
+
+        # Get Exit Status
+        ExecMainStatus=`systemctl show $SVC_NAME -p ExecMainStatus | cut -d'=' -f 2`
+        exit $ExecMainStatus
+      scriptInterpreter: sudo -u synchrosi -i
+    keepgoing: false
+    strategy: node-first
+  timeZone: Pacific/Noumea
+  uuid: bdfa3856-7783-4270-93b4-193e5cca6e50
+

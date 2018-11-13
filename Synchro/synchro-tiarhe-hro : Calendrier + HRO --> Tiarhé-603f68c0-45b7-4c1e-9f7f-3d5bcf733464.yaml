@@ -1,0 +1,59 @@
+- defaultTab: summary
+  description: Job en charge de la récupération du calendrier de paie et transfert de fichier de HRO --> Tiarhé
+  executionEnabled: true
+  group: Synchro
+  id: 603f68c0-45b7-4c1e-9f7f-3d5bcf733464
+  loglevel: INFO
+  name: 'synchro-tiarhe-hro : Calendrier + HRO --> Tiarhé'
+  nodeFilterEditable: false
+  nodefilters:
+    dispatch:
+      excludePrecedence: true
+      keepgoing: false
+      rankOrder: ascending
+      successOnEmptyNodeFilter: false
+      threadcount: '1'
+    filter: ' svq-springbatch0.site-mairie.noumea.nc'
+  nodesSelectedByDefault: true
+  scheduleEnabled: true
+  sequence:
+    commands:
+    - interpreterArgsQuoted: false
+      script: |
+        #!/bin/sh
+        # @author: smasa90
+
+        #synchroCalendarJob,synchroHroToTiarheJob
+        SPRING_BATCH_JOB_NAME=synchroCalendarJob,synchroHroToTiarheJob
+
+        SVC_NAME=synchro-tiarhe-hro
+
+        # Set Job names for this run
+        if [ ! -f ~/config/application.properties ]; then
+            mkdir ~/config; touch ~/config/application.properties;
+        fi
+        if [ $SPRING_BATCH_JOB_NAME ]; then
+            echo "spring.batch.job.names=$SPRING_BATCH_JOB_NAME" | tee ~/config/application.properties
+        fi
+
+        # Start Service and get ActiveEnterDate
+        sudo systemctl start $SVC_NAME
+        ActiveEnterDate=`systemctl show -p ActiveEnterTimestamp $SVC_NAME | awk '{print $2 " " $3}'`
+
+        # Print logs as a child process
+        journalctl -qfu $SVC_NAME -S "$ActiveEnterDate" &
+        CHILD_P=$!
+
+        # When Job finish kill child porocess and empty runtime application.properties
+        while systemctl is-active $SVC_NAME -q; do sleep 1s; done
+        kill $CHILD_P
+        > ~/config/application.properties
+
+        # Get Exit Status
+        ExecMainStatus=`systemctl show $SVC_NAME -p ExecMainStatus | cut -d'=' -f 2`
+        exit $ExecMainStatus
+      scriptInterpreter: sudo -u synchro-tiarhe-hro -i
+    keepgoing: false
+    strategy: node-first
+  uuid: 603f68c0-45b7-4c1e-9f7f-3d5bcf733464
+
